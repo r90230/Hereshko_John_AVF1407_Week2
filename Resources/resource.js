@@ -25,8 +25,8 @@ mainView.add(cameraPic, localWeather);
 //database maybe?
 
 var db = Ti.Database.open('weatherDB');
-db.execute('DROP TABLE IF EXISTS weather;');
-db.execute('CREATE TABLE IF NOT EXISTS weather(id INTEGER PRIMARY KEY, day TEXT, forecast TEXT);');
+db.execute('DROP TABLE IF EXISTS weather');
+db.execute('CREATE TABLE IF NOT EXISTS weather(id INTEGER PRIMARY KEY, day TEXT, forecast TEXT)');
 db.file.setRemoteBackup(false);
 db.close();
 
