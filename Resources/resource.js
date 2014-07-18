@@ -24,11 +24,6 @@ mainView.add(cameraPic, localWeather);
 
 //database maybe?
 
-var db = Ti.Database.open('weatherDB');
-db.execute('DROP TABLE IF EXISTS weather');
-db.execute('CREATE TABLE IF NOT EXISTS weather(id INTEGER PRIMARY KEY, day TEXT, forecast TEXT)');
-db.file.setRemoteBackup(false);
-db.close();
 
 //database ENd
 
@@ -98,11 +93,23 @@ for(i=0;i<5;i++){
 	balancer = balancer + 50;
 	
 	mainView.add(postImage, postDay, postForecast);
-	db.open();
-	db.execute('INSERT INTO weather (day, forecast) VALUES (?,?)', day, forecast);
-	var lastID = db.lastInsertRowID;
-	db.close();
 	
+	var db = Ti.Database.open('weatherDB');
+	db.open();
+	db.execute('DROP TABLE IF EXISTS weather');
+	db.execute('CREATE TABLE IF NOT EXISTS weather(id INTEGER PRIMARY KEY, day TEXT, forecast TEXT, image TEXT)');
+	db.file.setRemoteBackup(false);
+	db.execute('INSERT INTO weather (day, forecast, image) VALUES (?,?,?)', day, forecast, weatherImage);
+	var offlineDay = db.execute('SELECT day FROM weather');
+	var offlineForecast = db.execute('SELECT forecast FROM weather');
+	var offlineImage = db.execute('SELECT image FROM weather');
+	var lastRow = db.lastInsertRowId;
+	
+	
+	console.log(offlineDay.field(0));
+	console.log(offlineForecast.field(0));
+	console.log(lastRow);
+	db.close();
 	}	
 	//end for loop
 } else {
@@ -110,6 +117,33 @@ for(i=0;i<5;i++){
 	Ti.API.debug("Response: " + this.responseText);
 	Ti.API.debug("Error: " + e.error);
 	alert("There was an error retrieving data. Please try again later.");
+	
+	db.open();
+	console.log(offlineDay.field(0));
+	
+	var offlinePostDay = Ti.UI.createLabel({
+		text: offlineDay.field(0),
+		color: "#ff6600",
+		top: balancer + 120,
+		left: 20
+		});
+		
+	var offlinePostForecast = Ti.UI.createLabel({
+		text: offlineForecast.field(0),
+		top: balancer + 138,
+		color: "ff0000",
+		left: 145,
+		width: 160
+	});
+		
+	var offlinePostImage = Ti.UI.createImageView({
+		image: offlineImage.field(0),
+		top: balancer + 145,
+		left: 35
+	});
+	
+	mainView.add(offlinePostDay, offlinePostForecast, offlinePostImage);
+	db.close();
 };
 
 
